@@ -12,7 +12,7 @@
 
   <style>
     html
-     { scroll-behavior: smooth; }
+      { scroll-behavior: smooth; }
     
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -97,7 +97,7 @@
 
     input:checked + .slider:before {
       left: calc(100% - (var(--size-of-icon) + var(--slider-offset)));
-      background: #303136;
+      background: #303131;
       box-shadow: inset -3px -2px 5px -2px #8983f7, inset -10px -4px 0 0 #a3dafb;
     }
 
@@ -247,6 +247,34 @@
   .slideshow-image.active {
     opacity: 1; /* Active image is visible */
   }
+/* Scroll progress bar */
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 6px;
+  width: 0%;
+  z-index: 9999;
+  background: linear-gradient(90deg, #696969, #bab8bb, #fcf9fb);
+  box-shadow: 0 0 8px rgba(139, 139, 139, 0.6);
+  border-radius: 0 4px 4px 0;
+  transition: width 0.15s ease-out, background 1s linear;
+  animation: shine 3s infinite linear;
+  background-size: 200% 100%;
+}
+@keyframes shine {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+/* Webkit Scrollbars komplett ausblenden */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Optional: für Firefox */
+html {
+  scrollbar-width: none;
+}
 
   </style>
 </head>
@@ -260,6 +288,8 @@
   <div class="background-gradient"></div>
   <div class="noise-overlay"></div>
   <div id="cursor"></div>
+  <div id="scroll-progress"></div>
+
 
   <nav
     class="fixed top-0 left-0 w-full z-50 backdrop-blur shadow-sm bg-light dark:bg-dark"
@@ -470,6 +500,15 @@
         mobileMenu.classList.remove("opacity-100", "scale-100", "pointer-events-auto");
       }
     });
+    // Scroll progress bar
+window.addEventListener('scroll', () => {
+  const scrollProgress = document.getElementById('scroll-progress');
+  const scrollTop = window.scrollY;
+  const docHeight = document.body.scrollHeight - window.innerHeight;
+  const scrollPercent = (scrollTop / docHeight) * 100;
+  scrollProgress.style.width = `${scrollPercent}%`;
+});
+
   </script>
 
 
@@ -481,15 +520,17 @@
     </div>
   </section>
 
-<div class="me relative w-[300px] h-[300px] overflow-hidden rounded-xl shadow-lg">
+<figure class="me relative w-[400px] h-[400px] overflow-hidden rounded-xl shadow-lg">
+  <figcaption class="sr-only">Diashow von Michael Eaton</figcaption>
   <div id="slideshow" class="absolute w-full h-full">
-    <img src="ich.png" class="slideshow-image active" alt="Michael Eaton 1" />
-    <img src="https://via.placeholder.com/300x300/FF5733/FFFFFF?text=Image+2" class="slideshow-image" alt="Placeholder Image 2" />
-    <img src="https://via.placeholder.com/300x300/33FF57/FFFFFF?text=Image+3" class="slideshow-image" alt="Placeholder Image 3" />
-    <img src="https://via.placeholder.com/300x300/3357FF/FFFFFF?text=Image+4" class="slideshow-image" alt="Placeholder Image 4" />
-    <img src="https://via.placeholder.com/300x300/F0F033/000000?text=Image+5" class="slideshow-image" alt="Placeholder Image 5" />
+    <img src="me.JPG" class="slideshow-image active" alt="Michael Eaton Bild 1" />
+    <img src="me.JPG" class="slideshow-image" alt="Michael Eaton Bild 2" />
+    <img src="me.JPG" class="slideshow-image" alt="Michael Eaton Bild 3" />
+    <img src="me.JPG" class="slideshow-image" alt="Michael Eaton Bild 4" />
+    <img src="me.JPG" class="slideshow-image" alt="Michael Eaton Bild 5" />
   </div>
-</div>
+</figure>
+
 
 
   <section class="py-20 px-6">
@@ -526,15 +567,29 @@
     AOS.init();
     lucide.createIcons();
 
-    // Cursor-Effekt
+    // Custom Cursor JavaScript
     const cursor = document.getElementById("cursor");
-    document.addEventListener("mousemove", (e) => {
-      cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-    });
-    document.querySelectorAll("a, button, .bg-white").forEach((el) => {
-      el.addEventListener("mouseenter", () => cursor.classList.add("hovered"));
-      el.addEventListener("mouseleave", () => cursor.classList.remove("hovered"));
-    });
+
+    if (cursor) {
+        document.addEventListener("mousemove", (e) => {
+            cursor.style.top = `${e.clientY}px`;
+            cursor.style.left = `${e.clientX}px`;
+        });
+
+        // Add hover effect to elements with .button or .card classes
+        document.querySelectorAll(".button, .card").forEach(element => {
+            element.addEventListener("mouseenter", () => {
+                cursor.classList.add("hovered");
+            });
+
+            element.addEventListener("mouseleave", () => {
+                cursor.classList.remove("hovered");
+            });
+        });
+    } else {
+        console.warn("Element '#cursor' not found.");
+    }
+    // End Custom Cursor JavaScript
 
     // DARK MODE mit localStorage
     const toggle = document.getElementById("dark-toggle");
@@ -568,7 +623,8 @@
     const gptButton = document.getElementById("openMichaelGPT");
 
     document.addEventListener("mousemove", (e) => {
-      cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+      // The cursor positioning is now handled by the new custom cursor script.
+      // This line is for the cursorText.
       cursorText.style.transform = `translate(${e.clientX}px, ${e.clientY - 30}px)`; // Position leicht über Cursor
     });
 
@@ -613,6 +669,7 @@
             slides[currentSlide].classList.add('active');
         }, 4000); // Change image every 4 seconds (4000ms)
     }
+    
   </script>
   
 </body>
